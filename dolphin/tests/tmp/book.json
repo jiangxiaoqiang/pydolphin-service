@@ -1,0 +1,25 @@
+{
+  "name":"book_name",
+  "isbn":"123456",
+  "publisher":
+  [
+    "XXX出版社","XX出版社"
+  ],
+  "author":
+  [
+    "佚名"
+  ],
+  "publish_year":"2017-09",
+  "binding":"精装",
+  "pricing":"12",
+  "subtitle":"subtitle",
+  "original_name":"origin name",
+  "translator":
+  [
+    "a","b"
+  ],
+  "pages":"10",
+  "issuer":"issuer"
+}
+
+
