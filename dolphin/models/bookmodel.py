@@ -11,9 +11,9 @@ class Book(models.Model):
     binding = models.CharField(max_length=128)
     price = models.CharField(max_length=12)
     subtitle = models.CharField(max_length=256)
-    original_name = models.CharField(max_length=256)
+    original_name = models.CharField(blank=True,max_length=256)
     translator = ArrayField(models.CharField(max_length=256))
-    pages = models.CharField(max_length=32)
+    pages = models.CharField(blank=True,max_length=32)
     issuer = models.CharField(max_length=8000)
     creator = models.CharField(max_length=128)
 
