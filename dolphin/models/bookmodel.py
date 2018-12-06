@@ -16,6 +16,7 @@ class Book(models.Model):
     pages = models.CharField(blank=True,max_length=32)
     issuer = models.CharField(max_length=8000)
     creator = models.CharField(max_length=128)
+    douban_id = models.CharField(blank=True,max_length=128)
 
     class Meta:
         db_table = 'book'

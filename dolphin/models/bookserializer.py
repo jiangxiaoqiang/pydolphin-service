@@ -15,6 +15,7 @@ class BookSerializer(serializers.Serializer):
     pages = serializers.CharField(required=False,allow_blank=True)
     issuer = serializers.CharField(required=False,allow_blank=True)
     creator = serializers.CharField(required=False,allow_blank=True)
+    douban_id = serializers.CharField(required=False,allow_blank=True)
 
     def create(self, validated_data):
         return Book.objects.create(**validated_data)
