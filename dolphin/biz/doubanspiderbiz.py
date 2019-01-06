@@ -119,14 +119,11 @@ class doubanspiderbiz:
 
     def get_douban_book_id(self):
         conn = self.get_conn(self)
-        sql = '''SELECT *
-                    FROM douban_book_id 
-                    WHERE douban_book_id >= ((
-                        SELECT MAX(douban_book_id) 
-                        FROM douban_book_id) - (SELECT MIN(douban_book_id) 
-                        FROM douban_book_id)) * RANDOM() + (SELECT MIN(douban_book_id) FROM douban_book_id) 
-                    AND isscapy = 0 
-                    LIMIT 1'''
+        sql = '''SELECT * 
+                FROM douban_book_id 
+                where isscapy = 0
+                OFFSET floor(random()*8999999) 
+                LIMIT 1'''
         cursor = conn.cursor()
         cursor.execute(sql)
         rows = cursor.fetchall()
