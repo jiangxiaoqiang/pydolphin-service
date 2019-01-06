@@ -31,6 +31,7 @@ class bookcontroller(APIView):
         return JsonResponse(serializer.data, status=201)
       else:
         errors = serializer.errors
+        logger.error(errors)
 
     return JsonResponse(serializer.errors, status=400)
   
