@@ -8,7 +8,7 @@ import time
 
 config = configparser.ConfigParser()
 configFilePath = os.path.abspath("dolphin/config.ini")
-with open(configFilePath, "r") as cfgfile:
+with open(configFilePath, "r",encoding="utf-8") as cfgfile:
     config.readfp(cfgfile)
 
 
