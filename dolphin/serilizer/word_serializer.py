@@ -9,5 +9,5 @@ class WordSerializer(serializers.Serializer):
 
     def get(self):
         # get all data
-        word_result = Word.objects.all()       
+        word_result = Word.objects.filter(state=0)[:1]      
         return word_result
