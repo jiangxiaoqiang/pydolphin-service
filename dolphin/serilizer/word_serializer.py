@@ -5,9 +5,9 @@ from rest_framework.pagination import PageNumberPagination
 class WordSerializer(serializers.Serializer):                
     id = serializers.CharField(allow_blank=False)
     word = serializers.CharField(required=True, allow_blank=False)
-    remark = serializers.CharField(required=True)    
+    remark = serializers.CharField(required=True)
+    state = serializers.CharField(required=True)    
 
-    def get(self):
-        # get all data
+    def get(self):        
         word_result = Word.objects.filter(state=0)[:1]      
         return word_result

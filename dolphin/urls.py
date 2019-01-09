@@ -18,9 +18,11 @@ from django.urls import path
 from django.conf.urls import url
 from dolphin.api.bookcontroller import bookcontroller
 from dolphin.api.doubanbookcontroller import doubanbookcontroller
+from dolphin.api.word_controller import WordController
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
     url(r'^spider/api/book$', bookcontroller.as_view()),
-    url(r'^spider/api/doubanbook$', doubanbookcontroller.as_view())
+    url(r'^spider/api/doubanbook$', doubanbookcontroller.as_view()),
+    url(r'^spider/api/v1/word',WordController.as_view())
 ]

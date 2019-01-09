@@ -12,6 +12,7 @@ bs4 = "*"
 psycopg2 = "*"
 rest-framework = "*"
 djangorestframework = "*"
+httpie = "*"
 
 [requires]
 python_version = "3.7"
