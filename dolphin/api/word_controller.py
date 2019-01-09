@@ -27,3 +27,17 @@ class WordController(APIView):
     #https://q1mi.github.io/Django-REST-framework-documentation/tutorial/1-serialization_zh/
     #response_data['message'] = serializers.serialize("json", result)
     return  CustomJsonResponse(data=serializer1.data, code="20000", desc='get word success' )
+  
+  def put(self,request):
+    if isinstance(request.body, bytes):
+      str_body = str(request.body, encoding='utf-8')
+      plan_json_text = urllib.parse.unquote_plus(str_body)
+      data = json.loads(plan_json_text)
+      serializer = WordSerializer(data=data)
+      if serializer.is_valid():
+        serializer.save()        
+        return JsonResponse(serializer.data, status=201)
+      else:
+        errors = serializer.errors
+        logger.error(errors)
+
