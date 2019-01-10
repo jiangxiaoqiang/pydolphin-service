@@ -28,7 +28,7 @@ class CustomJsonResponse(Response):
             )
             raise AssertionError(msg)
 
-        self.data = {"code": code, "desc": desc, "data": data}
+        self.data = {"code": code, "message": desc, "data": data}
         self.template_name = template_name
         self.exception = exception
         self.content_type = content_type

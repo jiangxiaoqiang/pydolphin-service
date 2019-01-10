@@ -5,7 +5,6 @@ import time
 import threading
 from dolphin.biz.doubanspiderbiz import doubanspiderbiz
 from dolphin.biz.doubanspiderbizapi import doubanspiderbizapi
-from dolphin.biz.doubanspiderbizapirest import doubanspiderbizapirest
 from dolphin.common.commonlogger import commonlogger
 from dolphin.config.confighelper import confighelper
 
