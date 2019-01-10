@@ -11,3 +11,6 @@ class WordSerializer(serializers.Serializer):
     def get(self):        
         word_result = Word.objects.filter(state=0)[:1]      
         return word_result
+
+    def create(self, validated_data):
+        return Word.objects.create(**validated_data)

@@ -2,6 +2,7 @@
 
 import json
 import urllib
+import logging
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
@@ -10,11 +11,8 @@ from rest_framework.parsers import JSONParser
 from django.http import QueryDict
 from dolphin.models.bookserializer import BookSerializer
 from dolphin.biz.doubanspiderbiz import doubanspiderbiz
-from dolphin.common.commonlogger import commonlogger
 
-logger = commonlogger()
-commonloggerinstance = commonlogger()
-logger = commonloggerinstance.getlogger()
+logger = logging.getLogger(__name__)
 
 class bookcontroller(APIView):
 
