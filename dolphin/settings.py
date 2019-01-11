@@ -25,7 +25,7 @@ SECRET_KEY = 'd5ct*sscwby@y(al&s_6dt4y#d*wctg%7=z$%q))8f3qp%_p04'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['spider-service','localhost']
+ALLOWED_HOSTS = ['spider-service','localhost','127.0.0.1']
 
 
 # Application definition

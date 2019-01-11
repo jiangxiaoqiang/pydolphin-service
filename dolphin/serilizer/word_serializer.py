@@ -6,7 +6,7 @@ class WordSerializer(serializers.Serializer):
     id = serializers.CharField(allow_blank=False)
     word = serializers.CharField(required=True, allow_blank=False)
     remark = serializers.CharField(required=True)
-    state = serializers.CharField(required=True)    
+    state = serializers.IntegerField(required=True)    
 
     def get(self):        
         word_result = Word.objects.filter(state=0)[:1]      
@@ -14,3 +14,6 @@ class WordSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Word.objects.create(**validated_data)
+
+    def updateStatus(self, state,id):
+        return Word.objects.filter(id=id).update(state=state)

@@ -35,9 +35,10 @@ class WordController(APIView):
       data = json.loads(plan_json_text)
       serializer = WordSerializer(data=data)
       if serializer.is_valid():
-        serializer.save()        
-        return JsonResponse(serializer.data, status=201)
+        serializer.updateStatus(data["id"],data["state"])        
+        return CustomJsonResponse(data=serializer.data,code="20000", desc="Save success")
       else:
         errors = serializer.errors
         logger.error(errors)
+        return CustomJsonResponse(data="error",code = "50000",desc="Save failed")
 
