@@ -3,6 +3,7 @@
 import json
 import urllib
 import logging
+import demjson
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
@@ -11,6 +12,8 @@ from rest_framework.parsers import JSONParser
 from django.http import QueryDict
 from dolphin.models.bookserializer import BookSerializer
 from dolphin.biz.doubanspiderbiz import doubanspiderbiz
+from dolphin.db.ssdb_client import SsdbClient
+from scrapy.utils.serialize import ScrapyJSONDecoder
 
 logger = logging.getLogger(__name__)
 
@@ -20,37 +23,25 @@ class bookcontroller(APIView):
 
   def post(self,request):
     if isinstance(request.body, bytes):
-      str_body = str(request.body, encoding='utf-8')
-      plan_json_text = urllib.parse.unquote_plus(str_body)
-      data = json.loads(plan_json_text)
-      serializer = BookSerializer(data=data)
-      if serializer.is_valid():
-        self.save_book(data,serializer)
-        return JsonResponse(serializer.data, status=201)
-      else:
-        errors = serializer.errors
-        logger.error(errors)
-
-    return JsonResponse(serializer.errors, status=400)
+      standard_json_object = {}
+      try:
+        str_body = str(request.body, encoding='utf-8')
+        plan_json_text = urllib.parse.unquote_plus(str_body)
+        _decoder = ScrapyJSONDecoder()
+        standard_json_object = _decoder.decode(plan_json_text)
+      except Exception as e:
+        logger.error("Save book: " + str_body,e)
+      return self.save_single_book(standard_json_object) 
+    return JsonResponse("error", status=400,safe=False)
   
-  def save_book(self,data,serializer):
-    douban_id = data["douban_id"]
-    try:
-      isbn13 = data["isbn"]
-      sql = "select count(*) from book where isbn=%s"
-      conn = doubanspiderbiz.get_conn(doubanspiderbiz)
-      cur = conn.cursor()
-      isbn = str(isbn13.strip())
-      cur.execute(sql,[isbn])
-      (count,) = cur.fetchone()
-      if count is None or count < 1 :
-        serializer.save()
-        doubanspiderbiz.update_douban_book_id(doubanspiderbiz,douban_id, 1, '200,douban_id:' + str(douban_id))
-      else:
-        doubanspiderbiz.update_douban_book_id(doubanspiderbiz,douban_id, 1, 'aready exits')
-    except Exception as e:
-      doubanspiderbiz.update_douban_book_id(doubanspiderbiz,douban_id, -1, 'scrapy failed')
-      logger.error(e)
+  def save_single_book(self,books):
+    for key in books:
+      single_book = books[key]
+      serializer = BookSerializer(data=single_book)
+      if serializer.is_valid():
+        #json_text = json.dumps(single_book)
+        SsdbClient.qpush_front(SsdbClient,single_book)
+    return JsonResponse("Success", status=200,safe=False)
 
   def get(self,request):
     param_dict = request.query_params

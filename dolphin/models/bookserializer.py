@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 from rest_framework import serializers
 from dolphin.models.bookmodel import Book
 
@@ -16,6 +18,8 @@ class BookSerializer(serializers.Serializer):
     issuer = serializers.CharField(required=False,allow_blank=True)
     creator = serializers.CharField(required=False,allow_blank=True)
     douban_id = serializers.CharField(required=False,allow_blank=True)
+    source = serializers.CharField(required=False,allow_blank=True)
+    isbn10 = serializers.CharField(required=False,allow_blank=True)
 
     def create(self, validated_data):
         return Book.objects.create(**validated_data)

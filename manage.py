@@ -1,9 +1,7 @@
 #!/usr/bin/env python
+
 import os
 import sys
-
-from dolphin.config.confighelper import confighelper
-from dolphin.doubanspider import restapidoubanspider,apidoubanspider
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dolphin.settings')

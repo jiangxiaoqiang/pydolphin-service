@@ -37,20 +37,29 @@ class doubanspiderbiz:
 
     def update_douban_book_id(self,id, isscrapy, result):
         try:
+            sql = "select count(*) from douban_book_id where douban_book_id=%s"
             conn = self.get_conn(self)
-            current_date = utils.GetNowTime()
-            sql = '''
-                update douban_book_id 
-                set isscapy =%s,
-                    result =%s,
-                    update_date =%s 
-                where douban_book_id = %s
-                '''
             cur = conn.cursor()
-            cur.execute(sql,(str(isscrapy),result,current_date,str(id)))
-            conn.commit()
+            cur.execute(sql,[id])
+            (count,) = cur.fetchone()
+            if (count == 1):
+                self.update_douban_book_id_impl(id,isscrapy,result)
         except Exception as e:
             logger.error(e)
+
+    def update_douban_book_id_impl(self,id, isscrapy, result):
+        conn = self.get_conn(self)
+        current_date = utils.GetNowTime()
+        sql = '''
+            update douban_book_id 
+            set isscapy =%s,
+                result =%s,
+                update_date =%s 
+            where douban_book_id = %s
+            '''
+        cur = conn.cursor()
+        cur.execute(sql,(str(isscrapy),result,current_date,str(id)))
+        conn.commit()
 
     def get_single_book_detail_info(self,url, id):
         single_book = book()
@@ -134,4 +143,21 @@ class doubanspiderbiz:
         self.update_douban_book_id(self,result_id, -1, 'crawling...')
         return result_id
 
-
+    def save_book(self,data,serializer):
+        douban_id = data["douban_id"]
+        try:
+            isbn13 = data["isbn"]
+            sql = "select count(*) from book where isbn=%s"
+            conn = self.get_conn(self)
+            cur = conn.cursor()
+            isbn = str(isbn13.strip())
+            cur.execute(sql,[isbn])
+            (count,) = cur.fetchone()
+            if count is None or count < 1 :
+                serializer.save()
+                self.update_douban_book_id(doubanspiderbiz,douban_id, 1, '200,douban_id:' + str(douban_id))
+            else:
+                self.update_douban_book_id(doubanspiderbiz,douban_id, 1, 'aready exits')
+        except Exception as e:
+            self.update_douban_book_id(doubanspiderbiz,douban_id, -1, 'scrapy failed')
+            logger.error(e)

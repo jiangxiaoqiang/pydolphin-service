@@ -17,6 +17,8 @@ class Book(models.Model):
     issuer = models.CharField(max_length=8000)
     creator = models.CharField(max_length=128)
     douban_id = models.CharField(blank=True,max_length=128)
+    source = models.CharField(blank=True,max_length=128)
+    isbn10 = models.CharField(blank=True,max_length=32)
 
     class Meta:
         db_table = 'book'

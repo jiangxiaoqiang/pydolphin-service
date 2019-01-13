@@ -19,10 +19,12 @@ from django.conf.urls import url
 from dolphin.api.bookcontroller import bookcontroller
 from dolphin.api.doubanbookcontroller import doubanbookcontroller
 from dolphin.api.word_controller import WordController
+from dolphin.api.consumer_controller import ConsumerController
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
     url(r'^spider/api/book$', bookcontroller.as_view()),
     url(r'^spider/api/doubanbook$', doubanbookcontroller.as_view()),
-    url(r'^spider/api/v1/word',WordController.as_view())
+    url(r'^spider/api/v1/word',WordController.as_view()),
+    url(r'^spider/api/v1/consumer',ConsumerController.as_view())
 ]
