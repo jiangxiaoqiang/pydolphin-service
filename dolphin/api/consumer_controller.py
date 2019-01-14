@@ -2,10 +2,20 @@
 
 import time
 import threading
+import logging
+import urllib
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from django.http import QueryDict
+from dolphin.models.scrapy_urls_pool_model import ScrapyUrlsPool
 from dolphin.biz.book_persist_consumer import BookPersistConsumer
+from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
+from dolphin.serilizer.word_serializer import WordSerializer
+from dolphin.config.confighelper import confighelper
+from dolphin.common.spiderconst import SpiderConst
+from dolphin.common.dolphinhttpclient import dolphinhttpclient
+
+logger = logging.getLogger(__name__)
 
 class ConsumerController(APIView):
     def get(self,request):
@@ -15,10 +25,71 @@ class ConsumerController(APIView):
     def background_process(self):
         print("process started")
         bookPersistConsumer = BookPersistConsumer()
-        bookPersistConsumer.run()        
+        bookPersistConsumer.run() 
+
+    def google_url_generate_process(self):
+        print("process started")
+        while(True):
+            try:
+                serializer = SpiderUrlsSerializer()
+                result = serializer.get()
+            except Exception as e:
+                logger.error(e)
+                        
+    def generate_imp(self):
+        wordSerializer = WordSerializer()
+        result = wordSerializer.get()
+        query_key_word = result[0]["word"]
+        scrapy_urls = self.get_scrapy_urls(query_key_word)
+        for url in scrapy_urls:
+            self.persist_url(url)
+
+    def persist_url(self,url):
+        try:
+            scrapyUrls = ScrapyUrlsPool()
+            scrapyUrls["spider_name"] = "google-book-spider"
+            scrapyUrls["scrapy_url"] = url
+            serializer = SpiderUrlsSerializer()
+            serializer.create(scrapyUrls)
+        except Exception as e:
+            logger.error(e)
+
+    def get_scrapy_urls(self, query_key_word):
+        startIndex = 0
+        urls = []
+        url_param = {
+            "q": query_key_word,
+            "maxResults": 1
+        }
+        url_main = confighelper.getValue(self, 'global', 'google_book_api_url')
+        initial_url = url_main + "?" + urllib.parse.urlencode(url_param)
+        total_elements = self.get_total_elements_num_by_keyword(
+            self, initial_url)
+        while True:
+            if(startIndex < total_elements):
+                scrapy_param = "q=" + query_key_word + \
+                    "&maxResults="+ str(SpiderConst.GOOGLE_BOOK_DEFAULT_SCRAPY_SIZE) +"&startIndex=" + str(startIndex)
+                scrapy_url = url_main + "?" + scrapy_param
+                urls.append(scrapy_url)
+                startIndex = startIndex + SpiderConst.GOOGLE_BOOK_DEFAULT_SCRAPY_SIZE
+            else:
+                break
+        return urls
+
+    def get_total_elements_num_by_keyword(self, initial_url):
+        total_element = 0
+        response_text = dolphinhttpclient.get_response_data_google(
+            dolphinhttpclient, initial_url)
+        if(response_text is not None):
+            total_element = response_text["totalItems"]
+        return total_element
 
     def index(self,request):        
         t = threading.Thread(target=self.background_process, args=(), kwargs={})
         t.setDaemon(True)
         t.start()
+
+        google_url_proc = threading.Thread(target=self.google_url_generate_process, args=(), kwargs={})
+        google_url_proc.setDaemon(True)
+        google_url_proc.start()
         return HttpResponse("main thread content")
