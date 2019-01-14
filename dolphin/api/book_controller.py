@@ -17,7 +17,7 @@ from scrapy.utils.serialize import ScrapyJSONDecoder
 
 logger = logging.getLogger(__name__)
 
-class bookcontroller(APIView):
+class BookController(APIView):
 
   parser_classes = (JSONParser,)
 
@@ -35,12 +35,14 @@ class bookcontroller(APIView):
     return JsonResponse("error", status=400,safe=False)
   
   def save_single_book(self,books):
-    for key in books:
-      single_book = books[key]
-      serializer = BookSerializer(data=single_book)
-      if serializer.is_valid():
-        #json_text = json.dumps(single_book)
-        SsdbClient.qpush_front(SsdbClient,single_book)
+    result_size = len(books)
+    if(books is not None and result_size > 2):
+      for key in books:
+        try:
+          single_book = books[key]      
+          SsdbClient.qpush_front(SsdbClient,single_book)
+        except Exception as e:
+          logger.error("save book encount an error,detail %s",e)
     return JsonResponse("Success", status=200,safe=False)
 
   def get(self,request):

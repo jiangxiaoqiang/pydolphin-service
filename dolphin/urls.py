@@ -16,15 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url
-from dolphin.api.bookcontroller import bookcontroller
+from rest_framework.documentation import include_docs_urls
+from dolphin.api.book_controller import BookController
 from dolphin.api.doubanbookcontroller import doubanbookcontroller
+from dolphin.api.spider_urls_controller import SpiderUrlsController
 from dolphin.api.word_controller import WordController
 from dolphin.api.consumer_controller import ConsumerController
 
 urlpatterns = [
-    #path('admin/', admin.site.urls),
-    url(r'^spider/api/book$', bookcontroller.as_view()),
-    url(r'^spider/api/doubanbook$', doubanbookcontroller.as_view()),
+    path('admin/', admin.site.urls),
+    url(r'^docs/', include_docs_urls(title="Dolphin's book spider api")),
+    url(r'^spider/api/v1/book$', BookController.as_view()),
+    url(r'^spider/api/v1/doubanbook$', doubanbookcontroller.as_view()),
     url(r'^spider/api/v1/word',WordController.as_view()),
-    url(r'^spider/api/v1/consumer',ConsumerController.as_view())
+    url(r'^spider/api/v1/consumer',ConsumerController.as_view()),
+    url(r'^spider/api/v1/spiderurls',SpiderUrlsController.as_view())
 ]
