@@ -37,7 +37,7 @@ class doubanspiderbiz:
 
     def update_douban_book_id(self,id, isscrapy, result):
         try:
-            sql = "select count(*) from douban_book_id where douban_book_id=%s"
+            sql = "select count(*) from spider_urls_pool where id=%s"
             conn = self.get_conn(self)
             cur = conn.cursor()
             cur.execute(sql,[id])
@@ -51,11 +51,11 @@ class doubanspiderbiz:
         conn = self.get_conn(self)
         current_date = utils.GetNowTime()
         sql = '''
-            update douban_book_id 
+            update spider_urls_pool 
             set isscapy =%s,
                 result =%s,
                 update_date =%s 
-            where douban_book_id = %s
+            where id = %s
             '''
         cur = conn.cursor()
         cur.execute(sql,(str(isscrapy),result,current_date,str(id)))
@@ -154,8 +154,9 @@ class doubanspiderbiz:
             cur.execute(sql,[isbn])
             (count,) = cur.fetchone()
             if count is None or count < 1 :
-                serializer.save()
-                self.update_douban_book_id(doubanspiderbiz,douban_id, 1, '200,douban_id:' + str(douban_id))
+                if(serializer.is_valid()):
+                    serializer.save()
+                    self.update_douban_book_id(doubanspiderbiz,douban_id, 1, '200,douban_id:' + str(douban_id))
             else:
                 self.update_douban_book_id(doubanspiderbiz,douban_id, 1, 'aready exits')
         except Exception as e:

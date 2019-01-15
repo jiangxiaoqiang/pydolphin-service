@@ -9,8 +9,8 @@ class SpiderUrlsSerializer(serializers.Serializer):
     scrapy_status = serializers.CharField(required=False)
     spider_name =  serializers.CharField(required=False)   
 
-    def get(self):        
-        url_result = ScrapyUrlsPool.objects.filter(scrapy_status=0)[:1]      
+    def get(self,spider_name):        
+        url_result = ScrapyUrlsPool.objects.filter(scrapy_status=0,spider_name=spider_name)[:1]      
         return url_result
 
     def create(self, validated_data):

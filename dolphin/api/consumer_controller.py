@@ -29,7 +29,7 @@ class ConsumerController(APIView):
         bookPersistConsumer.run() 
 
     def google_url_generate_process(self):
-        print("process started")
+        print("process url generate started")
         while(True):
             try:
                 self.generate_imp()                
@@ -78,8 +78,10 @@ class ConsumerController(APIView):
             initial_url)
         while True:
             if(startIndex < total_elements):
-                scrapy_param = "q=" + query_key_word + \
-                    "&maxResults="+ str(SpiderConst.GOOGLE_BOOK_DEFAULT_SCRAPY_SIZE) +"&startIndex=" + str(startIndex)
+                query_key_word_obj = {
+                        "q": query_key_word
+                }
+                scrapy_param = urllib.parse.urlencode(query_key_word_obj) + "&maxResults="+ str(SpiderConst.GOOGLE_BOOK_DEFAULT_SCRAPY_SIZE) +"&startIndex=" + str(startIndex)
                 scrapy_url = "?" + scrapy_param
                 urls.append(scrapy_url)
                 startIndex = startIndex + SpiderConst.GOOGLE_BOOK_DEFAULT_SCRAPY_SIZE

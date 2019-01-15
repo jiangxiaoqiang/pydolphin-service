@@ -34,6 +34,7 @@ class BookPersistConsumer():
                 book_object = ast.literal_eval(book_text_str)
                 serializer = BookSerializer(data=book_object)
                 doubanspiderbiz.save_book(doubanspiderbiz,book_object,serializer)
+                logger.info("save book:" + book_text_str)
             else:
                 time.sleep(10)
         except Exception as e:

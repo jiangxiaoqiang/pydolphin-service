@@ -5,6 +5,7 @@ import json
 import logging
 
 from rest_framework.views import APIView
+from django.http import QueryDict
 from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
 from dolphin.common.net.restful.api_response import CustomJsonResponse
 
@@ -13,9 +14,13 @@ logger = logging.getLogger(__name__)
 class SpiderUrlsController(APIView):
 
     def get(self,request):
-        serializer = SpiderUrlsSerializer()
-        result = serializer.get()
-        serializer_response = SpiderUrlsSerializer(result, many=True)
+        param_dict = request.query_params
+        if isinstance(param_dict, QueryDict):
+            param_dict = param_dict.dict()
+            spider_name = param_dict.get("spider_name")
+            serializer = SpiderUrlsSerializer()
+            result = serializer.get(spider_name)
+            serializer_response = SpiderUrlsSerializer(result, many=True)
         return  CustomJsonResponse(data=serializer_response.data, code="20000", desc='ok' )
 
     def put(self,request):
