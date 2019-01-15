@@ -4,11 +4,10 @@ from rest_framework.pagination import PageNumberPagination
 from dolphin.models.scrapy_urls_pool_model import ScrapyUrlsPool
 
 class SpiderUrlsSerializer(serializers.Serializer):                
-    id = serializers.CharField(allow_blank=False)
-    result = serializers.CharField(required=True)
-    scrapy_url = serializers.CharField(required=True)
-    scrapy_status = serializers.CharField(required=True)
-    spider_name =  serializers.CharField(required=True)   
+    result = serializers.CharField(required=False)
+    scrapy_url = serializers.CharField(required=False)
+    scrapy_status = serializers.CharField(required=False)
+    spider_name =  serializers.CharField(required=False)   
 
     def get(self):        
         url_result = ScrapyUrlsPool.objects.filter(scrapy_status=0)[:1]      

@@ -7,6 +7,7 @@ import urllib
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from django.http import QueryDict
+from django.forms.models import model_to_dict
 from dolphin.models.scrapy_urls_pool_model import ScrapyUrlsPool
 from dolphin.biz.book_persist_consumer import BookPersistConsumer
 from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
@@ -31,28 +32,38 @@ class ConsumerController(APIView):
         print("process started")
         while(True):
             try:
-                serializer = SpiderUrlsSerializer()
-                result = serializer.get()
+                self.generate_imp()
+                time.sleep(10)
             except Exception as e:
                 logger.error(e)
                         
     def generate_imp(self):
-        wordSerializer = WordSerializer()
-        result = wordSerializer.get()
-        query_key_word = result[0]["word"]
-        scrapy_urls = self.get_scrapy_urls(query_key_word)
-        for url in scrapy_urls:
-            self.persist_url(url)
-
-    def persist_url(self,url):
         try:
-            scrapyUrls = ScrapyUrlsPool()
-            scrapyUrls["spider_name"] = "google-book-spider"
-            scrapyUrls["scrapy_url"] = url
-            serializer = SpiderUrlsSerializer()
-            serializer.create(scrapyUrls)
+            wordSerializer = WordSerializer()
+            result = wordSerializer.get()
+            serializer1 = WordSerializer(result, many=True)
+
+            result_date = serializer1.data
+            query_key_word = result_date[0]["word"]
+            scrapy_urls = self.get_scrapy_urls(query_key_word)
+            id = result_date[0]["id"]
+            for url in scrapy_urls:
+                self.persist_url(url)
+            wordSerializer.updateStatus(1,id)
         except Exception as e:
             logger.error(e)
+
+    def persist_url(self,url):        
+        scrapy_url = ScrapyUrlsPool(spider_name="google-book-spider",
+                                    scrapy_status = 0, 
+                                    scrapy_url= url,
+                                    result = "ready to scrapy")
+        scrapy_url_dict = model_to_dict(scrapy_url)
+        serializer = SpiderUrlsSerializer(data = scrapy_url_dict)
+        valid = serializer.is_valid()
+        error = serializer.errors
+        if(valid):
+            serializer.create(serializer.validated_data)        
 
     def get_scrapy_urls(self, query_key_word):
         startIndex = 0
@@ -64,12 +75,12 @@ class ConsumerController(APIView):
         url_main = confighelper.getValue(self, 'global', 'google_book_api_url')
         initial_url = url_main + "?" + urllib.parse.urlencode(url_param)
         total_elements = self.get_total_elements_num_by_keyword(
-            self, initial_url)
+            initial_url)
         while True:
             if(startIndex < total_elements):
                 scrapy_param = "q=" + query_key_word + \
                     "&maxResults="+ str(SpiderConst.GOOGLE_BOOK_DEFAULT_SCRAPY_SIZE) +"&startIndex=" + str(startIndex)
-                scrapy_url = url_main + "?" + scrapy_param
+                scrapy_url = "?" + scrapy_param
                 urls.append(scrapy_url)
                 startIndex = startIndex + SpiderConst.GOOGLE_BOOK_DEFAULT_SCRAPY_SIZE
             else:
