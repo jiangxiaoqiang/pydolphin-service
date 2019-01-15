@@ -32,25 +32,25 @@ class ConsumerController(APIView):
         print("process started")
         while(True):
             try:
-                self.generate_imp()
-                time.sleep(10)
+                self.generate_imp()                
             except Exception as e:
                 logger.error(e)
                         
     def generate_imp(self):
-        try:
-            wordSerializer = WordSerializer()
-            result = wordSerializer.get()
-            serializer1 = WordSerializer(result, many=True)
-
-            result_date = serializer1.data
-            query_key_word = result_date[0]["word"]
-            scrapy_urls = self.get_scrapy_urls(query_key_word)
-            id = result_date[0]["id"]
+        wordSerializer = WordSerializer()
+        result = wordSerializer.get()
+        serializer1 = WordSerializer(result, many=True)            
+        result_date = serializer1.data
+        query_key_word = result_date[0]["word"]
+        scrapy_urls = self.get_scrapy_urls(query_key_word)
+        id = result_date[0]["id"]
+        try:            
             for url in scrapy_urls:
                 self.persist_url(url)
             wordSerializer.updateStatus(1,id)
+            logger.info("scrapy word:" + query_key_word + " complete!")
         except Exception as e:
+            wordSerializer.updateStatus(-1,id)
             logger.error(e)
 
     def persist_url(self,url):        
