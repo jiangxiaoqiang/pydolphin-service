@@ -6,6 +6,7 @@ import logging
 
 from rest_framework.views import APIView
 from django.http import QueryDict
+from scrapy.utils.serialize import ScrapyJSONDecoder
 from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
 from dolphin.common.net.restful.api_response import CustomJsonResponse
 
@@ -27,12 +28,17 @@ class SpiderUrlsController(APIView):
         if isinstance(request.body, bytes):
             str_body = str(request.body, encoding='utf-8')
             plan_json_text = urllib.parse.unquote_plus(str_body)
-            data = json.loads(plan_json_text)
-            serializer = SpiderUrlsSerializer(data=data)
-            if serializer.is_valid():
-                serializer.updateStatus(data["id"],data["scrapy_state"])        
-                return CustomJsonResponse(data=serializer.data,code="20000", desc="Save success")
-            else:
-                errors = serializer.errors
-                logger.error(errors)
-                return CustomJsonResponse(data="error",code = "50000",desc="Save failed")
+            try:
+                _decoder = ScrapyJSONDecoder()
+                standard_url_str = _decoder.decode(plan_json_text)
+                serializer = SpiderUrlsSerializer(data=standard_url_str)
+                if serializer.is_valid():
+                    serializer.updateStatus(standard_url_str["scrapy_status"],standard_url_str["scrapy_url"])        
+                    return CustomJsonResponse(data=serializer.data,code="20000", desc="Save success")
+                else:
+                    errors = serializer.errors
+                    logger.error(errors)
+                    return CustomJsonResponse(data="error",code = "50000",desc="Save failed")
+            except Exception as e:
+                logger.error(e)
+                return CustomJsonResponse(data="error",code = "50000",desc= e)

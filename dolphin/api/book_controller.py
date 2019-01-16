@@ -23,20 +23,22 @@ class BookController(APIView):
 
   def post(self,request):
     if isinstance(request.body, bytes):
-      standard_json_object = {}
+      standard_book_dict = {}
       try:
         str_body = str(request.body, encoding='utf-8')
         plan_json_text = urllib.parse.unquote_plus(str_body)
         _decoder = ScrapyJSONDecoder()
-        standard_json_object = _decoder.decode(plan_json_text)
+        standard_book_str = _decoder.decode(plan_json_text)
+        standard_book_dict = json.loads(standard_book_str)
       except Exception as e:
         logger.error("Save book: " + str_body,e)
-      return self.save_single_book(standard_json_object) 
+      return self.save_single_book(standard_book_dict) 
     return JsonResponse("error", status=400,safe=False)
   
-  def save_single_book(self,books):
-    result_size = len(books)
-    if(books is not None and result_size > 2):
+  def save_single_book(self,books):   
+    dict_type = type(books) 
+    len_dict = len(books)
+    if(books):
       for key in books:
         try:
           single_book = books[key]      

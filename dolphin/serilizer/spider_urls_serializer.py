@@ -16,5 +16,5 @@ class SpiderUrlsSerializer(serializers.Serializer):
     def create(self, validated_data):
         return ScrapyUrlsPool.objects.create(**validated_data)
 
-    def updateStatus(self, state,id):
-        return ScrapyUrlsPool.objects.filter(id=id).update(scrapy_status=state)
+    def updateStatus(self, state,scrapy_url):
+        return ScrapyUrlsPool.objects.filter(scrapy_url=scrapy_url).update(scrapy_status=state)
