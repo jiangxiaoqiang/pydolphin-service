@@ -97,12 +97,16 @@ class ConsumerController(APIView):
             total_element = response_text["totalItems"]
         return total_element
 
-    def index(self,request):        
+    def index(self,request):
         t = threading.Thread(target=self.background_process, args=(), kwargs={})
         t.setDaemon(True)
-        t.start()
-
-        google_url_proc = threading.Thread(target=self.google_url_generate_process, args=(), kwargs={})
-        google_url_proc.setDaemon(True)
-        google_url_proc.start()
+        t.start() 
+        param_dict = request.query_params
+        if isinstance(param_dict, QueryDict):
+            param_dict = param_dict.dict()
+            is_generate_url = param_dict.get("is_generate_url")  
+            if(is_generate_url == 1):
+                google_url_proc = threading.Thread(target=self.google_url_generate_process, args=(), kwargs={})
+                google_url_proc.setDaemon(True)
+                google_url_proc.start()
         return HttpResponse("main thread content")

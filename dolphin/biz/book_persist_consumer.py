@@ -36,7 +36,8 @@ class BookPersistConsumer():
                 doubanspiderbiz.save_book(doubanspiderbiz,book_object,serializer)
                 logger.info("save book:" + book_text_str)
             else:
-                time.sleep(10)
+                logger.info("Having no book,sleep 30 sec...")
+                time.sleep(30)
         except Exception as e:
             logger.error("save book to database failed, the detail : %s",e)
 
