@@ -4,7 +4,8 @@ import pyssdb
 import logging
 import json
 
-c = pyssdb.Client('127.0.0.1',8888)
+#c = pyssdb.Client('127.0.0.1',8888)
+c = ''
 
 logger = logging.getLogger(__name__)
 
