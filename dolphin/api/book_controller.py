@@ -52,13 +52,15 @@ class BookController(APIView):
       for key in books:
         try:
           single_book = books[key]
-          bookSerializer = BookSerializer(data = single_book) 
-          saved_book = bookSerializer.create(single_book)
-          industryIdentifiers = single_book["industry_identifiers"]
+          #bookSerializer = BookSerializer(data = single_book) 
+          #saved_book = bookSerializer.create(single_book)
+          #industryIdentifiers = single_book["industry_identifiers"]
           logger.info("saving book info...,detail: %s",single_book)          
           #producer.send("spider-google-book-bookinfo",single_book)
-          producer.send("dolphin-test".encode('utf-8'),b"dolphin-client")
-          self.save_identifiers_info(industryIdentifiers,saved_book.id)
+          single_book_str = json.dumps(single_book)
+          single_book_bytes = str.encode(single_book_str)
+          producer.send('dolphin-spider-google-book-bookinfo', single_book_bytes)
+          #self.save_identifiers_info(industryIdentifiers,saved_book.id)
         except Exception as e:
           logger.error("save book encount an error,detail %s ,book info: %s",e,books[key])
       endtime = datetime.datetime.now()
@@ -72,8 +74,8 @@ class BookController(APIView):
         identify["book_id"] = book_id
         is_valid = industryIdentifiersSerializer.is_valid()
         if(is_valid):
-          producer.send("spider-google-book-identifiersinfo",identify)
-          industryIdentifiersSerializer.save()
+          producer.send("dolphin-spider-google-book-identifiersinfo",identify)
+          #industryIdentifiersSerializer.save()
         
 
   def get(self,request):

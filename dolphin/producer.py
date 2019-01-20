@@ -11,7 +11,7 @@ producer = KafkaProducer(
 )
 
 # Asynchronous by default
-future = producer.send('dolphin-test', b'raw_bytes')
+future = producer.send('dolphin-test', b'raw_bytddddes')
 
 record_metadata = None
 
