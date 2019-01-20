@@ -38,7 +38,7 @@ class BookController(APIView):
         _decoder = ScrapyJSONDecoder()
         standard_book_str = _decoder.decode(plan_json_text)
       except Exception as e:
-        logger.error("Save book: " + str_body,e)
+        logger.error("Save book encount an error: " + str_body,e)
       return self.save_single_book(standard_book_str) 
     return JsonResponse("error", status=400,safe=False)
   
@@ -51,32 +51,16 @@ class BookController(APIView):
       starttime = datetime.datetime.now()
       for key in books:
         try:
-          single_book = books[key]
-          #bookSerializer = BookSerializer(data = single_book) 
-          #saved_book = bookSerializer.create(single_book)
-          #industryIdentifiers = single_book["industry_identifiers"]
-          logger.info("saving book info...,detail: %s",single_book)          
-          #producer.send("spider-google-book-bookinfo",single_book)
+          single_book = books[key]          
           single_book_str = json.dumps(single_book)
           single_book_bytes = str.encode(single_book_str)
           producer.send('dolphin-spider-google-book-bookinfo', single_book_bytes)
-          #self.save_identifiers_info(industryIdentifiers,saved_book.id)
+          logger.info("saving book info kafka...,detail: %s",single_book) 
         except Exception as e:
-          logger.error("save book encount an error,detail %s ,book info: %s",e,books[key])
+          logger.error("save book info kafka encount an error,detail %s ,book info: %s",e,books[key])
       endtime = datetime.datetime.now()
-      logger.info('Running time: %s Seconds',(endtime - starttime).seconds)
+      logger.info('Saving kafka running time: %s Seconds',(endtime - starttime).seconds)
     return JsonResponse("Success", status=200,safe=False)
-
-  def save_identifiers_info(self,identifiers,book_id):
-    if(identifiers):
-      for identify in identifiers:        
-        industryIdentifiersSerializer = IndustryIdentifiersSerializer(data = identify)
-        identify["book_id"] = book_id
-        is_valid = industryIdentifiersSerializer.is_valid()
-        if(is_valid):
-          producer.send("dolphin-spider-google-book-identifiersinfo",identify)
-          #industryIdentifiersSerializer.save()
-        
 
   def get(self,request):
     param_dict = request.query_params
