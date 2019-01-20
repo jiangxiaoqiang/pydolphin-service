@@ -7,6 +7,7 @@ import logging
 import demjson
 import datetime
 from django.http import HttpResponse, JsonResponse
+from kafka import KafkaProducer
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
 from urllib import request, parse
@@ -19,6 +20,10 @@ from dolphin.db.ssdb_client import SsdbClient
 from scrapy.utils.serialize import ScrapyJSONDecoder
 
 logger = logging.getLogger(__name__)
+producer = KafkaProducer(
+  bootstrap_servers=['mq-server:9092'],
+  api_version = (0,10,2,0) # solve no broker error
+)
 
 class BookController(APIView):
 
@@ -49,9 +54,11 @@ class BookController(APIView):
           single_book = books[key]
           bookSerializer = BookSerializer(data = single_book) 
           saved_book = bookSerializer.create(single_book)
-          industryIdentifiers = single_book["industry_identifiers"]          
+          industryIdentifiers = single_book["industry_identifiers"]
+          logger.info("saving book info...,detail: %s",single_book)          
+          #producer.send("spider-google-book-bookinfo",single_book)
+          producer.send("dolphin-test".encode('utf-8'),b"dolphin-client")
           self.save_identifiers_info(industryIdentifiers,saved_book.id)
-          #SsdbClient.qpush_front(SsdbClient,single_book)
         except Exception as e:
           logger.error("save book encount an error,detail %s ,book info: %s",e,books[key])
       endtime = datetime.datetime.now()
@@ -65,6 +72,7 @@ class BookController(APIView):
         identify["book_id"] = book_id
         is_valid = industryIdentifiersSerializer.is_valid()
         if(is_valid):
+          producer.send("spider-google-book-identifiersinfo",identify)
           industryIdentifiersSerializer.save()
         
 

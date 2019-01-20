@@ -71,7 +71,7 @@ class ConsumerController(APIView):
         urls = []
         url_param = {
             "q": query_key_word,
-            "maxResults": 1
+            "maxResults": 40
         }
         url_main = confighelper.getValue(self, 'global', 'google_book_api_url')
         initial_url = url_main + "?" + urllib.parse.urlencode(url_param)
