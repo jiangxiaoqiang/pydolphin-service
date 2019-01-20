@@ -33,11 +33,9 @@ class BookController(APIView):
     if isinstance(request.body, bytes):
       standard_book_str = {}
       try:
-        str_body = str(request.body, encoding='utf-8')
-        plan_json_text = urllib.parse.unquote_plus(str_body)
-        _decoder = ScrapyJSONDecoder()
-        standard_book_str = _decoder.decode(plan_json_text)
+          producer.send('dolphin-spider-google-book-bookinfo', request.body)
       except Exception as e:
+        str_body = str(request.body, encoding='utf-8')
         logger.error("Save book encount an error: " + str_body,e)
       return self.save_single_book(standard_book_str) 
     return JsonResponse("error", status=400,safe=False)
