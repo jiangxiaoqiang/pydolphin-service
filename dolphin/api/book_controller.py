@@ -3,7 +3,6 @@
 import json
 import urllib
 import logging
-import demjson
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
