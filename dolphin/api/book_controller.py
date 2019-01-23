@@ -2,19 +2,28 @@
 
 import json
 import urllib
+import time
 import logging
+import datetime
 from django.http import HttpResponse, JsonResponse
+from kafka import KafkaProducer
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
 from urllib import request, parse
 from rest_framework.parsers import JSONParser
 from django.http import QueryDict
 from dolphin.models.bookserializer import BookSerializer
+from dolphin.serilizer.industry_identifiers_serializer import IndustryIdentifiersSerializer
 from dolphin.biz.doubanspiderbiz import doubanspiderbiz
 from dolphin.db.ssdb_client import SsdbClient
 from scrapy.utils.serialize import ScrapyJSONDecoder
+from dolphin.common.net.restful.api_response import CustomJsonResponse
 
 logger = logging.getLogger(__name__)
+producer = KafkaProducer(
+  bootstrap_servers=['mq-server:9092'],
+  api_version = (0,10,2,0) # solve no broker error
+)
 
 class BookController(APIView):
 
@@ -22,29 +31,13 @@ class BookController(APIView):
 
   def post(self,request):
     if isinstance(request.body, bytes):
-      standard_book_dict = {}
       try:
-        str_body = str(request.body, encoding='utf-8')
-        plan_json_text = urllib.parse.unquote_plus(str_body)
-        _decoder = ScrapyJSONDecoder()
-        standard_book_str = _decoder.decode(plan_json_text)
-        standard_book_dict = json.loads(standard_book_str)
+          producer.send('dolphin-spider-google-book-bookinfo', request.body)
       except Exception as e:
-        logger.error("Save book: " + str_body,e)
-      return self.save_single_book(standard_book_dict) 
-    return JsonResponse("error", status=400,safe=False)
-  
-  def save_single_book(self,books):   
-    dict_type = type(books) 
-    len_dict = len(books)
-    if(books):
-      for key in books:
-        try:
-          single_book = books[key]      
-          SsdbClient.qpush_front(SsdbClient,single_book)
-        except Exception as e:
-          logger.error("save book encount an error,detail %s",e)
-    return JsonResponse("Success", status=200,safe=False)
+        str_body = str(request.body, encoding='utf-8')
+        logger.error("Save book encount an error: " + str_body,e)
+        return CustomJsonResponse(data=e,code="50000",desc="saving book to kafka failed")
+    return CustomJsonResponse(data="Success",code="20000",desc="ok" )
 
   def get(self,request):
     param_dict = request.query_params

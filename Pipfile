@@ -15,8 +15,8 @@ rest-framework = "*"
 djangorestframework = "*"
 httpie = "*"
 markdown = "*"
-demjson = "*"
 pyssdb = "*"
+kafka-python = "*"
 
 [requires]
 python_version = "3.7"

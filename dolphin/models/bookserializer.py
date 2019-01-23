@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 from dolphin.models.bookmodel import Book
+from dolphin.serilizer.industry_identifiers_serializer import IndustryIdentifiersSerializer
 
 class BookSerializer(serializers.Serializer):                
     name = serializers.CharField(allow_blank=False)
@@ -20,6 +21,8 @@ class BookSerializer(serializers.Serializer):
     douban_id = serializers.CharField(required=False,allow_blank=True)
     source = serializers.CharField(required=False,allow_blank=True)
     isbn10 = serializers.CharField(required=False,allow_blank=True)
+    industryi_dentifiers = serializers.CharField(required=False,allow_blank=True)
+
 
     def create(self, validated_data):
         return Book.objects.create(**validated_data)
