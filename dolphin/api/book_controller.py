@@ -33,7 +33,7 @@ class BookController(APIView):
   def post(self,request):
     if isinstance(request.body, bytes):
       try:
-          producer.send('dolphin-spider-google-book-bookinfo', request.body)
+          producer.send('dolphin-spider-google-book-bookinfo',key = "google-book-bookinfo", value = request.body)
       except Exception as e:
         str_body = str(request.body, encoding='utf-8')
         logger.error("Save book encount an error: " + str_body,e)

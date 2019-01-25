@@ -1,4 +1,5 @@
 from rest_framework import serializers
+#from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
 from dolphin.models.word_model import Word
 from rest_framework.pagination import PageNumberPagination
 from dolphin.models.scrapy_urls_pool_model import ScrapyUrlsPool
@@ -10,7 +11,10 @@ class SpiderUrlsSerializer(serializers.Serializer):
     spider_name =  serializers.CharField(required=False)   
 
     def get(self,spider_name):        
-        url_result = ScrapyUrlsPool.objects.filter(scrapy_status=0,spider_name=spider_name)[:1]      
+        url_result = ScrapyUrlsPool.objects.filter(scrapy_status=0,spider_name=spider_name)[:1]
+        #url_serializer = SpiderUrlsSerializer(url_result, many=True)
+        #scrapy_url = url_serializer.data["scrapy_url"]
+        #self.updateStatus(-1,scrapy_url)      
         return url_result
 
     def create(self, validated_data):

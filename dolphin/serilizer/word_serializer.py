@@ -9,7 +9,10 @@ class WordSerializer(serializers.Serializer):
     state = serializers.IntegerField(required=True)    
 
     def get(self):        
-        word_result = Word.objects.filter(state=0)[:1]      
+        word_result = Word.objects.filter(state=0)[:1]
+        #word_serializer = WordSerializer(word_result, many=True)
+        #key_word_id = word_serializer.data["id"]
+        #self.updateStatus(-1,key_word_id)      
         return word_result
 
     def create(self, validated_data):
