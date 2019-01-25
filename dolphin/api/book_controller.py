@@ -4,7 +4,6 @@ import json
 import urllib
 import time
 import logging
-import demjson
 import datetime
 from django.http import HttpResponse, JsonResponse
 from kafka import KafkaProducer
@@ -37,8 +36,8 @@ class BookController(APIView):
       except Exception as e:
         str_body = str(request.body, encoding='utf-8')
         logger.error("Save book encount an error: " + str_body,e)
-        return CustomJsonResponse(data=e,code="50000",desc="saving book to kafka failed") 
-    return CustomJsonResponse(data="Success",code="20000",desc="ok" )  
+        return CustomJsonResponse(data=e,code="50000",desc="saving book to kafka failed")
+    return CustomJsonResponse(data="Success",code="20000",desc="ok" )
 
   def get(self,request):
     param_dict = request.query_params
