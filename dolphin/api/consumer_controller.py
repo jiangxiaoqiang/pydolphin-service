@@ -32,7 +32,8 @@ class ConsumerController(APIView):
         print("process url generate started")
         while(True):
             try:
-                self.generate_imp()                
+                self.generate_imp() 
+                time.sleep(15)               
             except Exception as e:
                 logger.error(e)
                         
