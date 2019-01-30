@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from django.http import QueryDict
 from django.forms.models import model_to_dict
 from dolphin.models.scrapy_urls_pool_model import ScrapyUrlsPool
-from dolphin.biz.book_persist_consumer import BookPersistConsumer
 from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
 from dolphin.serilizer.word_serializer import WordSerializer
 from dolphin.config.confighelper import confighelper
@@ -22,11 +21,6 @@ class ConsumerController(APIView):
     def get(self,request):
         self.index(request)
         return JsonResponse("Book consumer deamon started",safe=False)
-
-    def background_process(self):
-        print("process started")
-        bookPersistConsumer = BookPersistConsumer()
-        bookPersistConsumer.run() 
 
     def google_url_generate_process(self):
         print("process url generate started")
@@ -63,7 +57,6 @@ class ConsumerController(APIView):
         scrapy_url_dict = model_to_dict(scrapy_url)
         serializer = SpiderUrlsSerializer(data = scrapy_url_dict)
         valid = serializer.is_valid()
-        error = serializer.errors
         if(valid):
             serializer.create(serializer.validated_data)        
 
@@ -78,6 +71,7 @@ class ConsumerController(APIView):
         initial_url = url_main + "?" + urllib.parse.urlencode(url_param)
         total_elements = self.get_total_elements_num_by_keyword(
             initial_url)
+        logger.info("get total elements:" + str(total_elements))
         if(total_elements == 0):
             return urls
         while True:
@@ -104,10 +98,7 @@ class ConsumerController(APIView):
             logger.error("get google info encount an error,the detail %s",e)
         return total_element
 
-    def index(self,request):
-        t = threading.Thread(target=self.background_process, args=(), kwargs={})
-        t.setDaemon(True)
-        t.start() 
+    def index(self,request):        
         param_dict = request.query_params
         if isinstance(param_dict, QueryDict):
             param_dict = param_dict.dict()
