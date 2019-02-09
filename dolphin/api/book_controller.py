@@ -20,6 +20,7 @@ from scrapy.utils.serialize import ScrapyJSONDecoder
 from dolphin.common.net.restful.api_response import CustomJsonResponse
 
 logger = logging.getLogger(__name__)
+
 producer = KafkaProducer(
   bootstrap_servers=['mq-server:9092'],
   api_version = (0,10,2,0) # solve no broker error

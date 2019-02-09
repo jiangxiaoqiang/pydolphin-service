@@ -14,20 +14,21 @@ from dolphin.serilizer.word_serializer import WordSerializer
 from dolphin.config.confighelper import confighelper
 from dolphin.common.spiderconst import SpiderConst
 from dolphin.common.dolphinhttpclient import dolphinhttpclient
+from dolphin.common.net.restful.api_response import CustomJsonResponse
 
 logger = logging.getLogger(__name__)
 
 class ConsumerController(APIView):
     def get(self,request):
         self.index(request)
-        return JsonResponse("Book consumer deamon started",safe=False)
+        return CustomJsonResponse(data = "Book consumer deamon started",code = "20000",desc = "ok")
 
     def google_url_generate_process(self):
         print("process url generate started")
         while(True):
             try:
                 self.generate_imp() 
-                time.sleep(15)               
+                time.sleep(30)               
             except Exception as e:
                 logger.error(e)
                         
@@ -93,6 +94,7 @@ class ConsumerController(APIView):
             response_text = dolphinhttpclient.get_response_data_google(
                 dolphinhttpclient, initial_url)
             if(response_text is not None):
+                logger.info(response_text)
                 total_element = response_text["totalItems"]
         except Exception as e:
             logger.error("get google info encount an error,the detail %s",e)
