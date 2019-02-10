@@ -38,17 +38,18 @@ class ConsumerController(APIView):
         serializer1 = WordSerializer(result, many=True)            
         result_date = serializer1.data
         query_key_word = result_date[0]["word"]
+        id = result_date[0]["id"]
         scrapy_urls = self.get_scrapy_urls(query_key_word)
-        if(scrapy_urls):
-            id = result_date[0]["id"]
+        if(scrapy_urls):            
             try:            
                 for url in scrapy_urls:
                     self.persist_url(url)
-                wordSerializer.updateStatus(1,id)
                 logger.info("scrapy word:" + query_key_word + " complete!")
             except Exception as e:
                 wordSerializer.updateStatus(-1,id)
                 logger.error(e)
+        else:
+            wordSerializer.updateStatus(1,id)
 
     def persist_url(self,url):        
         scrapy_url = ScrapyUrlsPool(spider_name="google-book-spider",
