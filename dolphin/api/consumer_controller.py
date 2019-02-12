@@ -109,5 +109,6 @@ class ConsumerController(APIView):
             if(is_generate_url == '1'):
                 google_url_proc = threading.Thread(target=self.google_url_generate_process, args=(), kwargs={})
                 google_url_proc.setDaemon(True)
+                google_url_proc.setName("url_generator")
                 google_url_proc.start()
         return HttpResponse("main thread content")
