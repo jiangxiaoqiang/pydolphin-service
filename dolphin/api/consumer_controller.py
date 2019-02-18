@@ -77,7 +77,12 @@ class ConsumerController(APIView):
         if(total_elements == 0):
             return urls
         while True:
-            if(startIndex - 40 < total_elements):
+            #
+            # Google return invalid total elements
+            # Great than a number has no data
+            # Get the top 600 elements if greater than 600
+            #
+            if((startIndex - 40) < total_elements and (startIndex - 40) < 641):
                 query_key_word_obj = {
                         "q": query_key_word
                 }
