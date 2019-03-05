@@ -7,6 +7,7 @@ class ScrapyUrlsPool(models.Model):
     result = models.CharField(blank=True,max_length=256)
     scrapy_status = models.CharField(blank=True,max_length=4)
     spider_name = models.CharField(blank=False,max_length=256)
+    update_date = models.DateTimeField(blank=True)
    
     class Meta:
         db_table = 'spider_urls_pool'
