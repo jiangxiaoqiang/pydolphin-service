@@ -6,6 +6,7 @@ import logging
 
 from rest_framework.views import APIView
 from django.http import QueryDict
+from django.db import transaction
 from scrapy.utils.serialize import ScrapyJSONDecoder
 from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
 from dolphin.common.net.restful.api_response import CustomJsonResponse
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class SpiderUrlsController(APIView):
 
+    @transaction.atomic
     def get(self,request):
         param_dict = request.query_params
         if isinstance(param_dict, QueryDict):

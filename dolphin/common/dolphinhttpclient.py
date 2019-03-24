@@ -49,9 +49,9 @@ class dolphinhttpclient:
     def get_response_data_google(self,url):
         headers = {"User-Agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Trident/5.0)"}
         #req = request.Request("https://www.googleapis.com/books/v1/volumes?q=1", headers=headers)
-        proxy_support = urllib.request.ProxyHandler({'https': '127.0.0.1:1080'})
-        opener = urllib.request.build_opener(proxy_support)
-        urllib.request.install_opener(opener)
+        #proxy_support = urllib.request.ProxyHandler({'https': 'localhost:1081'})
+        #opener = urllib.request.build_opener(proxy_support)
+        #urllib.request.install_opener(opener)
         req = request.Request(url, headers=headers)
         #req = urllib.request.Request(url)
         response = urllib.request.urlopen(req).read()

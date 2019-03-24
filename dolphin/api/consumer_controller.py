@@ -9,30 +9,26 @@ from rest_framework.views import APIView
 from django.http import QueryDict
 from django.forms.models import model_to_dict
 from dolphin.models.scrapy_urls_pool_model import ScrapyUrlsPool
-from dolphin.biz.book_persist_consumer import BookPersistConsumer
 from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
 from dolphin.serilizer.word_serializer import WordSerializer
 from dolphin.config.confighelper import confighelper
 from dolphin.common.spiderconst import SpiderConst
 from dolphin.common.dolphinhttpclient import dolphinhttpclient
+from dolphin.common.net.restful.api_response import CustomJsonResponse
 
 logger = logging.getLogger(__name__)
 
 class ConsumerController(APIView):
     def get(self,request):
         self.index(request)
-        return JsonResponse("Book consumer deamon started",safe=False)
-
-    def background_process(self):
-        print("process started")
-        bookPersistConsumer = BookPersistConsumer()
-        bookPersistConsumer.run() 
+        return CustomJsonResponse(data = "Book consumer deamon started",code = "20000",desc = "ok")
 
     def google_url_generate_process(self):
         print("process url generate started")
         while(True):
             try:
-                self.generate_imp()                
+                self.generate_imp() 
+                time.sleep(30)               
             except Exception as e:
                 logger.error(e)
                         
@@ -42,17 +38,18 @@ class ConsumerController(APIView):
         serializer1 = WordSerializer(result, many=True)            
         result_date = serializer1.data
         query_key_word = result_date[0]["word"]
+        id = result_date[0]["id"]
         scrapy_urls = self.get_scrapy_urls(query_key_word)
-        if(scrapy_urls):
-            id = result_date[0]["id"]
+        if(scrapy_urls):            
             try:            
                 for url in scrapy_urls:
                     self.persist_url(url)
-                wordSerializer.updateStatus(1,id)
                 logger.info("scrapy word:" + query_key_word + " complete!")
             except Exception as e:
                 wordSerializer.updateStatus(-1,id)
                 logger.error(e)
+        else:
+            wordSerializer.updateStatus(1,id)
 
     def persist_url(self,url):        
         scrapy_url = ScrapyUrlsPool(spider_name="google-book-spider",
@@ -62,7 +59,6 @@ class ConsumerController(APIView):
         scrapy_url_dict = model_to_dict(scrapy_url)
         serializer = SpiderUrlsSerializer(data = scrapy_url_dict)
         valid = serializer.is_valid()
-        error = serializer.errors
         if(valid):
             serializer.create(serializer.validated_data)        
 
@@ -77,10 +73,16 @@ class ConsumerController(APIView):
         initial_url = url_main + "?" + urllib.parse.urlencode(url_param)
         total_elements = self.get_total_elements_num_by_keyword(
             initial_url)
+        logger.info("get total elements:" + str(total_elements))
         if(total_elements == 0):
             return urls
         while True:
-            if(startIndex - 40 < total_elements):
+            #
+            # Google return invalid total elements
+            # Great than a number has no data
+            # Get the top 600 elements if greater than 600
+            #
+            if((startIndex - 40) < total_elements and (startIndex - 40) < 641):
                 query_key_word_obj = {
                         "q": query_key_word
                 }
@@ -94,19 +96,14 @@ class ConsumerController(APIView):
 
     def get_total_elements_num_by_keyword(self, initial_url):
         total_element = 0
-        try:
-            response_text = dolphinhttpclient.get_response_data_google(
-                dolphinhttpclient, initial_url)
-            if(response_text is not None):
-                total_element = response_text["totalItems"]
-        except Exception as e:
-            logger.error("get google info encount an error,the detail %s",e)
+        response_text = dolphinhttpclient.get_response_data_google(
+            dolphinhttpclient, initial_url)
+        if(response_text is not None):
+            logger.info(response_text)
+            total_element = response_text["totalItems"]
         return total_element
 
-    def index(self,request):
-        t = threading.Thread(target=self.background_process, args=(), kwargs={})
-        t.setDaemon(True)
-        t.start() 
+    def index(self,request):        
         param_dict = request.query_params
         if isinstance(param_dict, QueryDict):
             param_dict = param_dict.dict()
@@ -114,5 +111,6 @@ class ConsumerController(APIView):
             if(is_generate_url == '1'):
                 google_url_proc = threading.Thread(target=self.google_url_generate_process, args=(), kwargs={})
                 google_url_proc.setDaemon(True)
+                google_url_proc.setName("url_generator")
                 google_url_proc.start()
         return HttpResponse("main thread content")

@@ -3,6 +3,7 @@
 import json
 import urllib
 import logging
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
@@ -20,13 +21,15 @@ class WordController(APIView):
 
   parser_classes = (JSONParser,)  
 
+  # Avoid multi spider get the same key word
+  # Make each query atomic
+  # Pay attention the performance issue by transaction
+  @transaction.atomic
   def get(self,request):
     serializer = WordSerializer()
     result = serializer.get()
-    serializer1 = WordSerializer(result, many=True)
-    #https://q1mi.github.io/Django-REST-framework-documentation/tutorial/1-serialization_zh/
-    #response_data['message'] = serializers.serialize("json", result)
-    return  CustomJsonResponse(data=serializer1.data, code="20000", desc='get word success' )
+    result_serializer = WordSerializer(result, many=True)
+    return  CustomJsonResponse(data=result_serializer.data, code="20000", desc='get word success' )
   
   def put(self,request):
     if isinstance(request.body, bytes):
