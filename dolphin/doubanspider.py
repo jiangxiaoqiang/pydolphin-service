@@ -5,8 +5,8 @@ import time
 import threading
 from dolphin.biz.doubanspiderbiz import doubanspiderbiz
 from dolphin.biz.doubanspiderbizapi import doubanspiderbizapi
-from dolphin.common.commonlogger import commonlogger
 from dolphin.config.confighelper import confighelper
+from dolphin.common.commonlogger import commonlogger
 
 commonloggerinstance = commonlogger()
 logger = commonloggerinstance.getlogger()

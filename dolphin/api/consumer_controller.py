@@ -2,7 +2,6 @@
 
 import time
 import threading
-import logging
 import urllib
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
@@ -15,8 +14,9 @@ from dolphin.config.confighelper import confighelper
 from dolphin.common.spiderconst import SpiderConst
 from dolphin.common.dolphinhttpclient import dolphinhttpclient
 from dolphin.common.net.restful.api_response import CustomJsonResponse
+from dolphin.common.commonlogger import commonlogger
 
-logger = logging.getLogger(__name__)
+logger = commonlogger().getlogger()
 
 class ConsumerController(APIView):
     def get(self,request):
