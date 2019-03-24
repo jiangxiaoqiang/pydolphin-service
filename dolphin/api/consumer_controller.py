@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import time
+import datetime
 import threading
 import urllib
 from django.http import HttpResponse, JsonResponse
@@ -55,12 +56,16 @@ class ConsumerController(APIView):
         scrapy_url = ScrapyUrlsPool(spider_name="google-book-spider",
                                     scrapy_status = 0, 
                                     scrapy_url= url,
-                                    result = "ready to scrapy")
+                                    result = "ready to scrapy",
+                                    update_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         scrapy_url_dict = model_to_dict(scrapy_url)
         serializer = SpiderUrlsSerializer(data = scrapy_url_dict)
         valid = serializer.is_valid()
+        error = serializer.errors
         if(valid):
-            serializer.create(serializer.validated_data)        
+            serializer.create(serializer.validated_data)
+        else:
+            logger.error(error)       
 
     def get_scrapy_urls(self, query_key_word):
         startIndex = 0
