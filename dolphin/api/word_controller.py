@@ -2,20 +2,15 @@
 
 import json
 import urllib
-import logging
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
-from urllib import request, parse
 from rest_framework.parsers import JSONParser
-from django.http import QueryDict
-from django.core import serializers
 from dolphin.serilizer.word_serializer import WordSerializer
-from dolphin.biz.doubanspiderbiz import doubanspiderbiz
 from dolphin.common.net.restful.api_response import CustomJsonResponse
+from dolphin.common.commonlogger import commonlogger
 
-logger = logging.getLogger(__name__)
+logger = commonlogger().getlogger()
 
 class WordController(APIView):
 

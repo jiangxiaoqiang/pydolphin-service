@@ -10,8 +10,9 @@ from django.db import transaction
 from scrapy.utils.serialize import ScrapyJSONDecoder
 from dolphin.serilizer.spider_urls_serializer import SpiderUrlsSerializer
 from dolphin.common.net.restful.api_response import CustomJsonResponse
+from dolphin.common.commonlogger import commonlogger
 
-logger = logging.getLogger(__name__)
+logger = commonlogger().getlogger()
 
 class SpiderUrlsController(APIView):
 
