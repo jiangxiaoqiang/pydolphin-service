@@ -1,8 +1,5 @@
 # -*- coding: UTF-8 -*-
 
-import json
-import urllib
-import time
 import logging
 import datetime
 from django.http import HttpResponse, JsonResponse
@@ -18,8 +15,9 @@ from dolphin.biz.doubanspiderbiz import doubanspiderbiz
 from dolphin.db.ssdb_client import SsdbClient
 from scrapy.utils.serialize import ScrapyJSONDecoder
 from dolphin.common.net.restful.api_response import CustomJsonResponse
+from dolphin.common.commonlogger import commonlogger
 
-logger = logging.getLogger(__name__)
+logger = commonlogger().getlogger()
 
 producer = KafkaProducer(
   bootstrap_servers=['mq-server:9092'],
