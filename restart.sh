@@ -13,17 +13,28 @@ set -x
 #
 # const define area
 #
-PROGRAM_NAME="0.0.0.0:9000"
+PROGRAM_NAME="manage.py"
 
 #
 # stop process
 #
 PID=`ps -ef|grep -w ${PROGRAM_NAME}|grep -v grep|cut -c 9-15`
-if [[ ${PID} -gt 1 ]]; then
-        kill -15 ${PID}
-else
-        echo "Process ${PROGRAM_NAME} not found"
-fi
+
+array=(${PID//\n/})
+
+for var in ${array[@]}
+do
+        singlepid=`echo ${var} | awk 'gsub(/^ *| *$/,"")' `
+        if [[ ${singlepid} -gt 1 ]]; then
+                kill -15 ${singlepid}
+        else
+                echo "Process ${PROGRAM_NAME} not found"
+        fi
+done
+
+
+
+sleep 5s
 
 #
 # start process

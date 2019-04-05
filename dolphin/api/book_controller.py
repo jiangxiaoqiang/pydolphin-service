@@ -31,6 +31,9 @@ class BookController(APIView):
   def post(self,request):
     if isinstance(request.body, bytes):
       try:
+          str_body = str(request.body, encoding='utf-8')
+
+          logger.info("received :" + str_body)
           producer.send('dolphin-spider-google-book-bookinfo',
                           #key = "google-book-bookinfo", 
                            request.body)

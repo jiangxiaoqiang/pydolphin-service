@@ -18,6 +18,7 @@ httpie = "*"
 markdown = "*"
 pyssdb = "*"
 kafka-python = "*"
+setproctitle = "*"
 
 [requires]
 python_version = "3.7"
