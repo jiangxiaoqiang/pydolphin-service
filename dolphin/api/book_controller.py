@@ -1,15 +1,12 @@
 # -*- coding: UTF-8 -*-
 
 import logging
-import datetime
 from django.http import HttpResponse, JsonResponse
 from kafka import KafkaProducer
 from rest_framework.views import APIView
 from dolphin.models.bookmodel import Book
-from urllib import request, parse
 from rest_framework.parsers import JSONParser
 from django.http import QueryDict
-from dolphin.models.bookserializer import BookSerializer
 from dolphin.serilizer.industry_identifiers_serializer import IndustryIdentifiersSerializer
 from dolphin.biz.doubanspiderbiz import doubanspiderbiz
 from dolphin.db.ssdb_client import SsdbClient

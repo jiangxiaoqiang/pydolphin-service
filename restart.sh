@@ -19,20 +19,20 @@ PROGRAM_NAME="manage.py"
 # stop process
 #
 PID=`ps -ef|grep -w ${PROGRAM_NAME}|grep -v grep|cut -c 9-15`
-
-array=(${PID//\n/})
-
-for var in ${array[@]}
-do
-        singlepid=`echo ${var} | awk 'gsub(/^ *| *$/,"")' `
-        if [[ ${singlepid} -gt 1 ]]; then
-                kill -15 ${singlepid}
-        else
-                echo "Process ${PROGRAM_NAME} not found"
-        fi
-done
-
-
+if [ -z "${PID}" ]; then
+        echo "Process aready down..."
+else
+        array=(${PID//\n/})
+        for var in ${array[@]}
+        do
+                singlepid=`echo ${var} | awk 'gsub(/^ *| *$/,"")' `
+                if [[ ${singlepid} -gt 1 ]]; then
+                        kill -15 ${singlepid}
+                else
+                        echo "Process ${PROGRAM_NAME} not found"
+                fi
+        done
+fi
 
 sleep 5s
 
